@@ -1,0 +1,16 @@
+/target
+.env
+.DS_Store
+.idea/
+.vscode/
+*.log
+node_modules/
+dist/
+*.tmp   
+*.bak
+coverage/
+*.swp
+*.class
+*.jar
+*.war
+*.iml
