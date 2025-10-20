@@ -13,3 +13,4 @@ uuid = { version = "1", features = ["v4", "serde"] }
 dotenvy = "0.15"
 chrono = { version = "0.4", features = ["serde"] }
 bcrypt = "0.17"
+jsonwebtoken = { version = "10.1", features = ["rust_crypto"] }

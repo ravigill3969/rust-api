@@ -1,8 +1,15 @@
-use sqlx::PgPool;
 use std::sync::Arc;
+use sqlx::PgPool;
+use crate::utils::jwt::JwtManager;
 
-// Shared application state (like Go’s struct)
 #[derive(Clone)]
-pub struct AppState {
-    pub db: Arc<PgPool>,
+pub struct UserHandler {
+  pub  db: Arc<PgPool>,
+  pub  jwt: Arc<JwtManager>,
+}
+
+impl UserHandler {
+    pub fn new(db: Arc<PgPool>, jwt: Arc<JwtManager>) -> Self {
+        Self { db, jwt }
+    }
 }

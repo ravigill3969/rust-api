@@ -8,17 +8,11 @@ pub struct RegisterRequest {
     pub password: String,
 }
 
-
-
 #[derive(Deserialize)]
 pub struct LoginRequest {
     pub email: String,
     pub password: String,
 }
-
-//
-// 2️⃣ Response payloads
-//
 
 #[derive(Serialize)]
 pub struct RegisterResponse {
@@ -32,10 +26,6 @@ pub struct LoginResponse {
     pub message: String,
 }
 
-//
-// 3️⃣ Database structs
-//
-
 #[derive(FromRow, Debug, Serialize)]
 pub struct User {
     pub username: String,
@@ -44,6 +34,8 @@ pub struct User {
 
 #[derive(FromRow, Debug)]
 pub struct LoginDBResponse {
+    pub id: String,
+    pub email: String,
     pub username: String,
     pub password_hash: String,
 }

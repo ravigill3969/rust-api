@@ -8,7 +8,7 @@ use sqlx::postgres::PgPoolOptions;
 use actix_web::{web, App, HttpServer};
 use std::env;
 use std::sync::Arc;
-use crate::state::AppState;
+use crate::state::UserHandler;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -16,6 +16,7 @@ async fn main() -> std::io::Result<()> {
 
     dotenv().ok();
     let db_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let jwt_secret = env::var("JWT_SECRET").expect("JWT_SECRET must be set");
 
     let pool = PgPoolOptions::new()
         .max_connections(5)
@@ -25,10 +26,8 @@ async fn main() -> std::io::Result<()> {
 
     println!("✅ Connected to Postgres at {}", db_url);
 
-    // ✅ Wrap your pool inside AppState
-    let app_state = AppState {
-        db: Arc::new(pool),
-    };
+    let jwt = Arc::new(JwtManager::new(jwt_secret));
+    let user_handler = UserHandler::new(pool.clone(), jwt.clone());
 
     HttpServer::new(move || {
         App::new()
