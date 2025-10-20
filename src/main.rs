@@ -9,6 +9,7 @@ use actix_web::{web, App, HttpServer};
 use std::env;
 use std::sync::Arc;
 use crate::state::UserHandler;
+use crate::utils::jwt::JwtManager;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -26,12 +27,13 @@ async fn main() -> std::io::Result<()> {
 
     println!("✅ Connected to Postgres at {}", db_url);
 
+    let db = Arc::new(pool);
     let jwt = Arc::new(JwtManager::new(jwt_secret));
-    let user_handler = UserHandler::new(pool.clone(), jwt.clone());
+    let user_handler = UserHandler::new(db.clone(), jwt.clone());
 
     HttpServer::new(move || {
         App::new()
-            .app_data(web::Data::new(app_state.clone())) 
+            .app_data(web::Data::new(user_handler.clone())) 
             .configure(routes::init)
     })
     .bind(("127.0.0.1", 8080))?

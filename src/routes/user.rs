@@ -54,7 +54,7 @@ pub async fn login(
     let result = sqlx::query_as!(
         LoginDBResponse,
         r#"
-        SELECT id, username, password_hash
+        SELECT id, username, password_hash, email
         FROM users
         WHERE email = $1
         "#,
