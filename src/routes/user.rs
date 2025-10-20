@@ -3,7 +3,8 @@ use crate::models::user::{
 };
 use crate::state::UserHandler;
 use crate::utils::password::{hash_password, verify_password};
-use actix_web::{post, web, HttpResponse, Responder};
+use actix_web::cookie::Cookie;
+use actix_web::{cookie, post, web, HttpResponse, Responder};
 use sqlx::PgPool;
 
 #[post("/api/register")]
@@ -65,15 +66,22 @@ pub async fn login(
 
     match result {
         Ok(Some(user)) => {
-            if verify_password(&req.password, &user.password_hash) {
+            if verify_password(&user.password_hash, &req.password) {
                 let token = handler
                     .jwt
                     .generate(&user.id.to_string(), &user.email)
                     .unwrap();
 
-                HttpResponse::Ok().json(LoginResponse {
+                let cookie = Cookie::build("sha256", token)
+                    .path("/")
+                    .http_only(true)
+                    .secure(true)
+                    .max_age(actix_web::cookie::time::Duration::hours(24))
+                    .finish();
+
+                HttpResponse::Ok().cookie(cookie).json(LoginResponse {
                     success: true,
-                    message: format!("Welcome back, {}! Token: {}", user.username, token),
+                    message: format!("Welcome back, {}!", user.username),
                 })
             } else {
                 HttpResponse::Unauthorized().json(LoginResponse {
