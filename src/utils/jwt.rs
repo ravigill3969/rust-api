@@ -38,7 +38,10 @@ impl JwtManager {
     }
 
     pub fn verify(&self, token: &str) -> Result<Claims, jsonwebtoken::errors::Error> {
-        let validation = Validation::default();
+        let mut validation = Validation::new(jsonwebtoken::Algorithm::HS256);
+        validation.validate_exp = true;
+        validation.validate_nbf = true;
+
         let data = decode::<Claims>(
             token,
             &DecodingKey::from_secret(self.secret.as_bytes()),

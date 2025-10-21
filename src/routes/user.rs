@@ -1,10 +1,11 @@
 use crate::models::user::{
     LoginDBResponse, LoginRequest, LoginResponse, RegisterRequest, RegisterResponse, User,
+    VerifyUserResponse,
 };
 use crate::state::UserHandler;
 use crate::utils::password::{hash_password, verify_password};
 use actix_web::cookie::Cookie;
-use actix_web::{cookie, post, web, HttpResponse, Responder};
+use actix_web::{get, post, web, HttpRequest, HttpResponse, Responder};
 use sqlx::PgPool;
 
 #[post("/api/register")]
@@ -101,5 +102,29 @@ pub async fn login(
                 message: "Database error".to_string(),
             })
         }
+    }
+}
+
+#[get("/api/verify-token")]
+pub async fn verify(req: HttpRequest, handler: web::Data<UserHandler>) -> impl Responder {
+    if let Some(cookie) = req.cookie("sha256") {
+        let cookie_val = cookie.value();
+        let jwt_verify_response: Result<crate::utils::jwt::Claims, jsonwebtoken::errors::Error> =
+            handler.jwt.verify(cookie_val);
+
+        match jwt_verify_response {
+            Ok(claims) => HttpResponse::Ok().json(VerifyUserResponse {
+                id: claims.id,
+                message: "verified".to_string(),
+                success: true,
+            }),
+            Err(e) => HttpResponse::Unauthorized().json(VerifyUserResponse {
+                id: "0".to_string(),
+                message: format!("Verification failed: {}", e),
+                success: false,
+            }),
+        }
+    } else {
+        HttpResponse::Unauthorized().body("Missing cookie")
     }
 }
