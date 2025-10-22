@@ -2,6 +2,7 @@ mod models;
 mod routes;
 mod utils;
 mod state;
+mod middleware;
 
 use dotenvy::dotenv;
 use sqlx::postgres::PgPoolOptions;

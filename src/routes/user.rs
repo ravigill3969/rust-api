@@ -105,26 +105,7 @@ pub async fn login(
     }
 }
 
-#[get("/api/verify-token")]
-pub async fn verify(req: HttpRequest, handler: web::Data<UserHandler>) -> impl Responder {
-    if let Some(cookie) = req.cookie("sha256") {
-        let cookie_val = cookie.value();
-        let jwt_verify_response: Result<crate::utils::jwt::Claims, jsonwebtoken::errors::Error> =
-            handler.jwt.verify(cookie_val);
-
-        match jwt_verify_response {
-            Ok(claims) => HttpResponse::Ok().json(VerifyUserResponse {
-                id: claims.id,
-                message: "verified".to_string(),
-                success: true,
-            }),
-            Err(e) => HttpResponse::Unauthorized().json(VerifyUserResponse {
-                id: "0".to_string(),
-                message: format!("Verification failed: {}", e),
-                success: false,
-            }),
-        }
-    } else {
-        HttpResponse::Unauthorized().body("Missing cookie")
-    }
-}
+// #[get("/api/verify-token")]
+// pub async fn verify(req: HttpRequest, handler: web::Data<UserHandler>) -> impl Responder {
+    
+// }

@@ -7,5 +7,5 @@ pub fn init(cfg: &mut web::ServiceConfig) {
     cfg.service(home::home);
     cfg.service(user::register);
     cfg.service(user::login);
-    cfg.service(user::verify);
+    // cfg.service(user::verify);
 }

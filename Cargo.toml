@@ -14,3 +14,5 @@ dotenvy = "0.15"
 chrono = { version = "0.4", features = ["serde"] }
 bcrypt = "0.17"
 jsonwebtoken = { version = "10.1", features = ["rust_crypto"] }
+futures-util = "0.3"
+webex = "0.10.0"
