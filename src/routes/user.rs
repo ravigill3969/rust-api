@@ -7,6 +7,7 @@ use crate::utils::password::{hash_password, verify_password};
 use actix_web::cookie::Cookie;
 use actix_web::{get, post, web, HttpRequest, HttpResponse, Responder};
 use sqlx::PgPool;
+use actix_web::HttpMessage;
 
 #[post("/api/register")]
 pub async fn register(
@@ -105,7 +106,11 @@ pub async fn login(
     }
 }
 
-// #[get("/api/verify-token")]
-// pub async fn verify(req: HttpRequest, handler: web::Data<UserHandler>) -> impl Responder {
-    
-// }
+#[get("/verify")]
+pub async fn verify(req: HttpRequest) -> impl Responder {
+    if let Some(user_id) = req.extensions().get::<String>() {
+        HttpResponse::Ok().body(format!("Verified user: {}", user_id))
+    } else {
+        HttpResponse::Unauthorized().body("Invalid token")
+    }
+}

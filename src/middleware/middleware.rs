@@ -3,7 +3,7 @@ use actix_web::{
     Error, HttpMessage,
 };
 use futures_util::future::{ready, LocalBoxFuture, Ready};
-use jsonwebtoken::{decode, DecodingKey, Validation, Algorithm};
+use jsonwebtoken::{decode, Algorithm, DecodingKey, Validation};
 use std::{env, rc::Rc};
 
 use crate::utils::jwt::Claims;
@@ -56,7 +56,7 @@ where
         let token_opt = req
             .headers()
             .get("Authorization")
-            .and_then(|v| v.to_str().ok())
+            .and_then(|v: &actix_web::http::header::HeaderValue| v.to_str().ok())
             .and_then(|v| {
                 if v.starts_with("Bearer ") {
                     Some(v.trim_start_matches("Bearer ").trim().to_string())
@@ -64,7 +64,9 @@ where
                     None
                 }
             })
-            .or_else(|| req.cookie("jwt").map(|c| c.value().to_string()));
+            .or_else(|| req.cookie("sha256").map(|c| c.value().to_string()));
+
+        println!("{:#?}", token_opt);
 
         let fut = if let Some(token) = token_opt {
             match decode::<Claims>(
@@ -87,7 +89,9 @@ where
         Box::pin(async move {
             match fut {
                 Some(f) => f.await,
-                None => Err(actix_web::error::ErrorUnauthorized("Invalid or missing token")),
+                None => Err(actix_web::error::ErrorUnauthorized(
+                    "Invalid or missing token",
+                )),
             }
         })
     }
